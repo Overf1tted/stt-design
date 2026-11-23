@@ -250,6 +250,16 @@ body:has(.viewer[open]){overflow:hidden}
 .editing{max-width:980px;padding-block:28px 60px}.editing h1{font-size:clamp(38px,4vw,60px);margin:18px 0}
 .editing label,.editing p,.editing form,.edit-link{margin:14px 0}
 .editing select{font:inherit;padding:10px}.editing fieldset{border:1px solid var(--edge);border-radius:12px;padding:16px}
+.editor-actions{display:flex;gap:8px 12px}
+.editor-actions .action{min-inline-size:0;padding-inline:18px;text-align:center}
+@media(max-width:440px){
+ .editor-actions{gap:8px}
+ .editor-actions .action{font-size:14px;padding-inline:9px}
+}
+@media(max-width:350px){
+ .editor-actions{gap:6px}
+ .editor-actions .action{font-size:13px;padding-inline:5px}
+}
 .edit-link a{text-decoration:underline;text-underline-offset:4px;display:inline-block;padding:12px 0}
 @media(max-width:700px){
  .section-nav nav{display:grid;grid-template-columns:1fr 1.65fr 1fr 1fr;gap:3px}
