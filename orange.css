@@ -116,7 +116,7 @@ details p{margin:14px 0}
 .closing h2{font-size:clamp(30px,3.4vw,54px)}
 .request-inner{padding-block:clamp(44px,6vw,104px);display:grid;grid-template-columns:1fr 1fr;gap:8vw}
 .request-inner--illustrated{
- padding-block:clamp(32px,4vw,72px);
+ padding-block:clamp(32px,4vw,72px) 0;
  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
  grid-template-areas:"intro form" "portrait form";
  grid-template-rows:auto 1fr;
@@ -126,17 +126,13 @@ details p{margin:14px 0}
 .request-intro{grid-area:intro}
 .request-intro .action{max-inline-size:100%;justify-content:space-between}
 .request-intro .action span{min-inline-size:0;overflow-wrap:anywhere}
-.request-inner--illustrated form{grid-area:form}
+.request-inner--illustrated form{grid-area:form;margin-block-end:clamp(28px,3vw,52px)}
 .request-portrait{
  grid-area:portrait;
+ align-self:end;
  display:flex;
  justify-content:center;
- align-items:end;
  block-size:clamp(190px,20vw,300px);
- padding:14px 12px 0;
- background:#ffe5a4;
- border-radius:12px;
- overflow:hidden;
 }
 .request-portrait img{width:100%;height:100%;object-fit:contain;object-position:center bottom}
 .request p{margin:18px 0}
@@ -191,6 +187,7 @@ output:empty{display:none}
  .cover .action{margin-top:18px}.option-grid{gap:34px;grid-template-columns:1fr}
  .feature-grid,.docs,.request-inner{grid-template-columns:1fr;gap:20px}
  .request-inner--illustrated{grid-template-areas:"intro" "form" "portrait";grid-template-rows:auto}
+ .request-inner--illustrated form{margin-block-end:0}
  .feature-banner h1{font-size:clamp(32px,8vw,55px);text-wrap:initial;overflow-wrap:anywhere}
  .feature-grid{padding-top:12px;padding-bottom:26px}
  .gallery-frame{aspect-ratio:1.40}.thumbnails{gap:6px}.thumb{width:clamp(45px,14vw,70px);height:45px}
