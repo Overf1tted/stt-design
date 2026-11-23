@@ -47,14 +47,26 @@ a:hover:not(.action):not(.preview-card){text-decoration:underline;text-underline
 .order-panel{background:#fff0dd;border-radius:12px;padding:clamp(14px,2vw,32px)}
 .order-note{margin:12px 0 16px;color:#684221;font-size:14px}
 .order-actions{display:flex;align-items:center;flex-wrap:wrap;gap:10px 20px}
-.rates{display:flex;gap:12px 28px;flex-wrap:wrap}
-.rates dt{font-size:14px;margin-bottom:3px}
-.rates .amount,.part-price span{font-variant-numeric:tabular-nums;font-size:clamp(26px,3.1vw,47px)}
+.rental-panel{background:linear-gradient(120deg,#ffce58,#ffda72 58%,#ffd05d);border-radius:15px}
+.rates{display:flex;align-items:stretch;padding-inline:clamp(5px,1.1vw,18px)}
+.rates > div{min-width:0;position:relative}
+.rates > div + div{margin-inline-start:clamp(12px,2.4vw,36px);padding-inline-start:clamp(12px,2.4vw,36px)}
+.rates > div + div::before{content:"";position:absolute;inset-block:6px;inset-inline-start:0;border-inline-start:1px solid #8a5b0060}
+.rates dt{display:flex;align-items:center;gap:7px;font-size:clamp(13px,1.25vw,17px);margin-bottom:6px}
+.rates .icon,.rental-links a:first-child .icon:first-child{display:none}
+.rates .amount{font-weight:780;white-space:nowrap;font-variant-numeric:tabular-nums;font-size:clamp(23px,3.2vw,48px)}
+.part-price span{font-variant-numeric:tabular-nums;font-size:clamp(26px,3.1vw,47px)}
 .part-price{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
-.shift .order-panel{background:var(--orange)}
-.shift .order-note{color:#492602}
-.shift .order-panel .action.primary{background:var(--ink);color:#fff}
-.shift .order-panel .action.primary:hover{background:#393b2d}
+.rental-panel .order-note{margin:clamp(13px,1.7vw,23px) 0 clamp(16px,2vw,26px);padding-inline:clamp(5px,1.1vw,18px);color:#553a08}
+.rental-panel .order-actions{gap:12px 14px}
+.rental-panel [data-buy]{min-inline-size:31%;font-weight:720;border-radius:11px}
+.rental-links{display:grid;flex:1 0 auto;grid-template-columns:1.34fr 1fr;border:1.5px solid var(--ink);border-radius:11px;background:#fff7db29;max-width:100%}
+.rental-links .action{width:100%;min-width:0;padding-inline:clamp(10px,1.2vw,22px);border:0;border-radius:0;gap:10px}
+.rental-links .action + .action{border-inline-start:1px solid #8a5b0060}
+.rental-links .action:first-child{border-start-start-radius:9px;border-end-start-radius:9px}
+.rental-links .action:last-child{border-start-end-radius:9px;border-end-end-radius:9px}
+.rental-links .action:hover{background:#fff6d97a}
+.rental-links .action:active{transform:none;background:#ffebb5}
 .shift .gallery-frame{border-radius:12px}
 .detail .gallery-frame{background:radial-gradient(ellipse at 43% 44%,#fff1d7,#ffd096 65%,#ffbc73)}
 .detail .expand img,.drawing .expand img{object-fit:contain;padding:8%;mix-blend-mode:multiply}
@@ -191,8 +203,23 @@ output:empty{display:none}
  .cover{display:flex;flex-direction:column}.cover-pic{min-height:0;aspect-ratio:1.9;order:0}.cover-pic img{object-position:center 61%}.cover-copy{padding:25px var(--gutter) 30px}.cover h1{font-size:clamp(38px,11.5vw,70px);margin:8px 0 12px}.cover h1 br{display:none}
  .cover .action{margin-top:18px}.option-grid{gap:34px;grid-template-columns:1fr}
  .feature-grid,.docs,.request-inner{grid-template-columns:1fr;gap:20px}
- .request-inner--illustrated{grid-template-areas:"intro" "form" "portrait";grid-template-rows:auto}
+ .request-inner--illustrated{grid-template-areas:"intro" "form";grid-template-rows:auto;padding-block-end:32px}
  .request-inner--illustrated form{margin-block-end:0}
+ .request-portrait{display:none}
+ .rental-panel{padding:clamp(12px,3.2vw,22px);border-radius:15px}
+ .rates{display:grid;grid-template-columns:44fr 56fr;padding-inline:clamp(4px,1.5vw,14px);padding-top:7px}
+ .rates > div + div{margin-inline-start:0;padding-inline-start:clamp(7px,2vw,17px)}
+ .rates dt{width:fit-content;max-width:100%;border-radius:8px;background:#fff3cdcf;padding:6px clamp(5px,1.5vw,12px);font-size:clamp(11px,2.9vw,16px);font-weight:700;gap:clamp(4px,1vw,7px)}
+ .rates .icon{display:block;width:clamp(14px,3.6vw,21px);height:auto}
+ .rates .amount{font-size:clamp(24px,7.6vw,42px);letter-spacing:-.045em}
+ .rental-panel .order-note{padding-inline:clamp(4px,1.5vw,14px);color:var(--ink)}
+ .rental-panel .order-actions{display:grid;grid-template-columns:minmax(0,1fr);gap:13px}
+ .rental-panel [data-buy]{width:100%;font-size:clamp(18px,4.8vw,25px);min-height:54px}
+ .rental-links{width:100%;grid-template-columns:55fr 45fr}
+ .rental-links .action{font-size:clamp(12px,3.15vw,17px);gap:clamp(5px,1.8vw,11px);padding-inline:5px;min-height:48px}
+ .rental-links .icon{order:-1;width:clamp(16px,4.2vw,23px);height:auto}
+ .rental-links a:first-child .icon:first-child{display:block}
+ .rental-links a:first-child .icon:last-child{display:none}
  .feature-banner h1{font-size:clamp(32px,8vw,55px);text-wrap:initial;overflow-wrap:anywhere}
  .feature-grid{padding-top:12px;padding-bottom:26px}
  .gallery-frame{aspect-ratio:1.40}.thumbnails{gap:6px}.thumb{width:clamp(45px,14vw,70px);height:45px}
