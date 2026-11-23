@@ -160,8 +160,8 @@ output:empty{display:none}
 .foot-links{display:flex;flex-wrap:wrap;gap:6px 15px}
 .footer-copy{padding-block:12px 20px;border-top:1px solid #59594c;font-size:13px;color:#dddacd}
 .cover{display:grid;grid-template-columns:.85fr 1.15fr;width:100%;margin:auto;align-items:stretch}
-.cover-pic{order:2;position:relative;min-height:clamp(400px,34vw,590px)}
-.cover-pic img{position:absolute;inset:0}
+.cover-pic{order:2;position:relative;min-height:clamp(400px,34vw,590px);overflow:hidden}
+.cover-pic img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .cover-copy{padding:clamp(35px,4.7vw,82px) var(--gutter)}
 .cover h1{font-size:clamp(58px,6.7vw,96px);margin:16px 0}
 .cover p:not(.location){font-size:clamp(17px,1.4vw,23px);max-width:33ch}
