@@ -114,7 +114,7 @@ function setupTabs(nav) {
     panel.setAttribute('role','tabpanel');
     panel.tabIndex=0;
   }
-  function activate(hash, scroll) {
+  function activate(hash) {
     const selected=tabs.find(tab=>tab.hash===hash) || tabs[0];
     for (const tab of tabs) {
       const on=tab===selected;
@@ -122,15 +122,22 @@ function setupTabs(nav) {
       tab.tabIndex=on?0:-1;
       document.querySelector(tab.hash).hidden=!on;
     }
-    if (scroll) nav.scrollIntoView({block:'start'});
   }
   document.addEventListener('click',event=>{
     const link=event.target.closest('a[href^="#"]');
-    if (!link || !tabs.some(tab=>tab.hash===link.hash) || event.ctrlKey || event.metaKey || event.shiftKey) return;
+    if (!link || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+    const tab = tabs.find(tab => tab.hash === link.hash);
+    if (!tab) return;
     event.preventDefault();
     if (location.hash!==link.hash) history.pushState(null,'',link.hash);
-    activate(link.hash,true);
-    tabs.find(tab=>tab.hash===link.hash).focus({preventScroll:true});
+    activate(link.hash);
+    if (nav.contains(link)) {
+      tab.focus({preventScroll:true});
+    } else {
+      const panel = document.querySelector(link.hash);
+      panel.focus({preventScroll:true});
+      panel.scrollIntoView({block:'start'});
+    }
   });
   nav.addEventListener('keydown',event=>{
     const index=tabs.indexOf(event.target);
@@ -141,8 +148,10 @@ function setupTabs(nav) {
     const tab=tabs[(targets[event.key]+tabs.length)%tabs.length];
     tab.click();
   });
-  window.addEventListener('hashchange',()=>activate(location.hash,Boolean(location.hash)));
-  activate(location.hash,tabs.some(tab=>tab.hash===location.hash));
+  window.addEventListener('hashchange',()=>activate(location.hash));
+  activate(location.hash);
+  const initialTab = tabs.find(tab => tab.hash === location.hash);
+  if (initialTab) document.querySelector(initialTab.hash).scrollIntoView({block:'start'});
 }
 const tabs = document.querySelector('.section-nav nav');
 if (tabs) setupTabs(tabs);
