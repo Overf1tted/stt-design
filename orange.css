@@ -136,8 +136,9 @@ details p{margin:14px 0}
 }
 .request-portrait img{width:100%;height:100%;object-fit:contain;object-position:center bottom}
 @media(min-width:701px){
- .panorama .request-inner--illustrated{grid-template-rows:1fr auto;row-gap:16px}
- .panorama .request-intro{align-self:end}
+ :is(.panorama,.shift) .request-inner--illustrated{grid-template-rows:1fr auto;row-gap:6px}
+ :is(.panorama,.shift) .request-intro{align-self:end}
+ :is(.panorama,.shift) .request-portrait img{object-position:78% bottom}
 }
 .request p{margin:18px 0}
 .request-page .request-inner{min-height:min(600px,80vh)}
@@ -232,9 +233,9 @@ body:has(.viewer[open]){overflow:hidden}
 .full-specs dl{margin:22px 0 0;max-width:1000px}
 .full-specs dl div{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:16px;padding:13px 4px;border-bottom:1px solid var(--edge)}
 .full-specs dt{color:var(--muted)}
-.docs{background:#fff3ce;align-items:start;row-gap:18px}
+.docs{align-items:start;row-gap:18px}
 .doc-intro p{margin-top:15px}
-.docs details,.docs .document-links{background:#fffcf4;padding:18px 22px;border-radius:12px}
+.docs details,.docs .document-links{background:var(--smoke);padding:18px 22px;border-radius:12px}
 .docs summary{border:0;padding:2px 0;min-height:44px}
 .docs .document-links{gap:12px}
 .closing{background:#f5b400;padding:0 max(var(--gutter),4vw);flex-wrap:nowrap;overflow:hidden;min-height:240px}
