@@ -333,6 +333,9 @@ body:has(.viewer[open]){overflow:hidden}
  background:url("specs-backdrop.webp") center / contain no-repeat;
 }
 .specs-photo img{width:94%;height:100%;min-height:0;object-fit:contain;object-position:center bottom}
+:is(.detail,.drawing) .specs-photo{background:var(--light)}
+:is(.detail,.drawing) .specs-photo::before{content:none}
+:is(.detail,.drawing) .specs-photo img[src$="product-main.webp"]{mix-blend-mode:multiply}
 .panel-illustrated{
  display:grid;
  grid-template-columns:minmax(0,1fr) minmax(0,.85fr);
@@ -433,6 +436,8 @@ body:has(.viewer[open]){overflow:hidden}
 .closing-call{background:#fff6d6;color:#35270b}
 .closing-message{background:#ffffff39;color:#35270b}
 .closing .action:is(:hover,:focus-visible),.closing-message[aria-expanded=true]{background:#fffdf4;color:#35270b}
+.closing-actions .closing-call{background:#bde8a7;border-color:#395a2d;color:#203b20}
+.closing-actions .closing-call:is(:hover,:focus-visible){background:#d9f3c8;color:#203b20}
 .closing-contact{background:#fff9ea;border-radius:12px;padding:clamp(14px,2vw,24px);margin-top:16px;max-width:560px;gap:12px}
 .closing-contact :is(input,textarea){background:#fffdf8;border-color:#9d8451}
 .closing-contact small,.closing-contact output{color:#644b17}
