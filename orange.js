@@ -104,7 +104,7 @@ if (gallery) setupGallery(gallery);
 function setupTabs(nav) {
   const tabs = [...nav.querySelectorAll('a')];
   const description = document.querySelector('#description');
-  let descriptionOrigin;
+  const descriptionLinks = [...description.querySelectorAll('a[href^="#"]')];
   nav.setAttribute('role','tablist');
   for (const tab of tabs) {
     const panel = document.querySelector(tab.hash);
@@ -117,11 +117,15 @@ function setupTabs(nav) {
   }
   function activate(hash) {
     const selected=tabs.find(tab=>tab.hash===hash) || tabs[0];
+    const origin = descriptionLinks[history.state?.descriptionReturn?.index];
     for (const tab of tabs) {
       const on=tab===selected;
       tab.setAttribute('aria-selected',String(on));
       tab.tabIndex=on?0:-1;
-      document.querySelector(tab.hash).hidden=!on;
+      const panel = document.querySelector(tab.hash);
+      panel.hidden = !on;
+      const back = panel.querySelector('.panel-return');
+      if (back) back.hidden = !on || origin?.hash !== tab.hash;
     }
   }
   document.addEventListener('click',event=>{
@@ -132,15 +136,16 @@ function setupTabs(nav) {
     event.preventDefault();
     const fromTab = nav.contains(link);
     const returning = link.hasAttribute('data-description-return');
-    if (!fromTab && !returning) {
-      descriptionOrigin = description.contains(link) ? {link, top: link.getBoundingClientRect().top} : undefined;
-    }
-    if (location.hash!==link.hash) history.pushState(null,'',link.hash);
+    const previousOrigin = history.state?.descriptionReturn;
+    const index = descriptionLinks.indexOf(link);
+    const state = index < 0 ? null : {descriptionReturn: {index, top: link.getBoundingClientRect().top}};
+    if (location.hash !== link.hash) history.pushState(state, '', link.hash);
+    else if (state || previousOrigin) history.replaceState(state, '', link.hash);
     activate(link.hash);
-    if (returning && descriptionOrigin) {
-      const {link: origin, top} = descriptionOrigin;
+    const origin = returning && descriptionLinks[previousOrigin?.index];
+    if (origin) {
       origin.focus({preventScroll:true});
-      window.scrollBy(0, origin.getBoundingClientRect().top - top);
+      window.scrollBy(0, origin.getBoundingClientRect().top - previousOrigin.top);
     } else if (fromTab || returning) {
       tab.focus({preventScroll:true});
       if (returning) nav.scrollIntoView({block:'start'});
@@ -149,7 +154,6 @@ function setupTabs(nav) {
       panel.focus({preventScroll:true});
       panel.scrollIntoView({block:'start'});
     }
-    if (link.hash === '#description') descriptionOrigin = undefined;
   });
   nav.addEventListener('keydown',event=>{
     const index=tabs.indexOf(event.target);

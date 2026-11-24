@@ -257,9 +257,8 @@ body:has(.viewer[open]){overflow:hidden}
  position:sticky;
  top:env(safe-area-inset-top,0px);
  z-index:2;
- padding:8px clamp(var(--gutter),3.3vw,64px);
+ padding:8px clamp(var(--gutter),3.3vw,64px) 0;
  background:var(--light);
- border-bottom:1px solid var(--edge);
 }
 .panel-return .action{
  min-height:44px;
@@ -273,15 +272,15 @@ body:has(.viewer[open]){overflow:hidden}
 }
 .panel-return .action:is(:hover,:focus-visible){background:#ffde87}
 .panel-return .action:active{background:#f0c55b}
-.panel-return .action .icon{width:18px;height:18px;transform:none;transition:transform .18s ease-out}
+.panel-return .action .icon{width:18px;height:18px;transform:none;transition:none}
 @media(prefers-reduced-motion:no-preference){
- .panel-return .action:focus-visible .icon{transform:translateX(-4px)}
- .panel-return .action:active .icon{transform:translateX(-6px)}
+ .panel-return:not([hidden]) .icon{animation:return-arrow 1.6s cubic-bezier(.33,1,.68,1) .12s 3}
+ @keyframes return-arrow{
+  0%,30%,100%{transform:translateX(0)}
+  12%{transform:translateX(-5px)}
+ }
 }
-@media(hover:hover) and (prefers-reduced-motion:no-preference){
- .panel-return .action:hover:not(:active) .icon{transform:translateX(-4px)}
-}
-.panel-return + .detail-panel{padding-block-start:clamp(22px,2.4vw,42px)}
+.panel-return:not([hidden]) + .detail-panel{padding-block-start:clamp(12px,1.25vw,22px)}
 .full-specs{grid-template-columns:minmax(0,.78fr) minmax(0,1.22fr)}
 .panel-intro h2{
  margin:14px 0;
