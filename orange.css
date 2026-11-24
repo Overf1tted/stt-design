@@ -332,7 +332,7 @@ body:has(.viewer[open]){overflow:hidden}
 .contract-art img,.request-portrait img{width:100%;height:auto;object-fit:contain}
 .contract-art > span{
  position:absolute;
- top:21%;
+ top:15%;
  left:32%;
  color:#282822;
  font-size:6.8cqi;
