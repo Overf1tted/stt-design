@@ -77,8 +77,7 @@ function setupGallery(gallery) {
     const image = collection[current].querySelector('img');
     screen.src=image.src;
     screen.alt=image.alt;
-    screen.title=annotation(image);
-    label.textContent=annotation(image);
+    label.textContent=image.alt.trim();
     if (collection===photoChoices) select(choices.indexOf(collection[current]));
   }
   function open(items,index) {
