@@ -234,6 +234,16 @@ function maskPhone(field) {
   });
 }
 
+const contactToggle = document.querySelector('.closing-message');
+const contactForm = document.querySelector('.closing-contact');
+if (contactToggle && contactForm) {
+  contactToggle.addEventListener('click', () => {
+    contactForm.hidden = !contactForm.hidden;
+    contactToggle.setAttribute('aria-expanded', String(!contactForm.hidden));
+    if (!contactForm.hidden) contactForm.elements.namedItem('name').focus({preventScroll:true});
+  });
+}
+
 for (const form of document.querySelectorAll('.request-form')) {
   const phone = form.querySelector('[data-phone-mask]');
   if (phone) maskPhone(phone);
@@ -246,7 +256,9 @@ for (const form of document.querySelectorAll('.request-form')) {
   }
   form.addEventListener('submit', event => {
     event.preventDefault();
-    form.querySelector('output').textContent = 'Форма проверена. Это демонстрационный макет.';
+    form.querySelector('output').textContent = form === contactForm
+      ? 'Форма заполнена. Сообщение не отправлено.'
+      : 'Форма проверена. Это демонстрационный макет.';
   });
 }
 
@@ -286,6 +298,10 @@ async function preparePhoto(file) {
   }
 }
 
+function canUploadPhoto(file) {
+  return /^image\/(jpeg|png|webp|avif)$/.test(file.type) && file.size <= 15 * 1024 * 1024;
+}
+
 const photoForm = document.querySelector('#photo-form');
 if (photoForm) {
   const card = document.querySelector('#edit-card');
@@ -317,7 +333,7 @@ if (photoForm) {
       status.textContent = 'Выберите файл изображения.';
       return;
     }
-    if (selected && (!/^(image\/(jpeg|png|webp|avif))$/.test(selected.type) || selected.size > 15 * 1024 * 1024)) {
+    if (selected && !canUploadPhoto(selected)) {
       status.textContent = 'Выберите JPG, PNG, WebP или AVIF до 15 МБ.';
       return;
     }
@@ -375,37 +391,109 @@ if (buy) {
   basket.querySelectorAll('[data-qty]').forEach(button=>button.addEventListener('click',()=>change(Number(button.dataset.qty))));
   render();
 }
-const fieldNames=['heading','copy','cta'];
 const storyKey=slug=>'stt-review-stories-'+slug;
-const editor=document.querySelector('#edit-form');
+function savedCard(slug) {
+  const values = stored(storyKey(slug), {});
+  return Array.isArray(values) ? {blocks:values} : values;
+}
+
+const editor = document.querySelector('#edit-form');
 if (editor) {
-  const menus=document.querySelector('#edit-card');
-  const defaults=JSON.parse(document.querySelector('#edit-defaults').textContent);
-  const blocks=[...editor.querySelectorAll('fieldset')];
+  const menu = document.querySelector('#edit-card');
+  const defaults = JSON.parse(document.querySelector('#edit-defaults').textContent);
+  const cardFields = [...editor.querySelectorAll('[data-card-field]')];
+  const blocks = [...editor.querySelectorAll('[data-story-fields]')];
+  const submit = editor.querySelector('[type=submit]');
+  const status = editor.querySelector('output');
+
   function populate() {
-    const data=stored(storyKey(menus.value),[]);
-    blocks.forEach((block,i)=>fieldNames.forEach((field,j)=>{
-      block.querySelector('[data-'+field+']').value = data[i]?.[field] || defaults[menus.value][i][2+j];
-    }));
-    document.querySelector('#open-card').href=menus.value+'.html#description';
-    editor.querySelector('output').textContent='';
+    const data = savedCard(menu.value);
+    const preset = defaults[menu.value];
+    for (const input of cardFields) {
+      const name = input.dataset.cardField;
+      input.value = data[name] ?? preset[name];
+    }
+    blocks.forEach((block, i) => {
+      const entry = {...preset.blocks[i], ...data.blocks?.[i]};
+      const preview = block.querySelector('img');
+      const restore = block.querySelector('[data-restore-photo]');
+      preview.src = entry.src;
+      preview.alt = entry.alt;
+      restore.checked = false;
+      restore.closest('label').hidden = entry.src === preset.blocks[i].src;
+      block.querySelector('[type=file]').value = '';
+      for (const input of block.querySelectorAll('[data-block-field]')) {
+        input.value = entry[input.dataset.blockField];
+      }
+    });
+    document.querySelector('#open-card').href = menu.value + '.html#description';
+    status.textContent = '';
   }
-  menus.addEventListener('change',populate);
-  editor.addEventListener('submit',event=>{
+
+  menu.addEventListener('change', populate);
+  editor.addEventListener('submit', async event => {
     event.preventDefault();
-    const data=blocks.map(block=>Object.fromEntries(fieldNames.map(field=>[field,block.querySelector('[data-'+field+']').value.trim()])));
-    const ok=save(storyKey(menus.value),data);
-    editor.querySelector('output').textContent=ok?'Сохранено. Откройте карточку для проверки.':'Браузер не разрешил сохранить изменения.';
+    if (submit.disabled) return;
+    const slug = menu.value;
+    const prior = savedCard(slug);
+    const entries = Object.fromEntries(cardFields.map(input => [input.dataset.cardField, input.value.trim()]));
+    const photos = blocks.map((block, i) => {
+      const file = block.querySelector('[type=file]').files[0];
+      const restore = block.querySelector('[data-restore-photo]').checked;
+      const fields = Object.fromEntries([...block.querySelectorAll('[data-block-field]')]
+        .map(input => [input.dataset.blockField, input.value.trim()]));
+      const src = restore ? undefined : prior.blocks?.[i]?.src;
+      return {file, src, fields};
+    });
+    const invalid = photos.findIndex(({file}) => file && !canUploadPhoto(file));
+    if (invalid !== -1) {
+      status.textContent = `Блок ${invalid + 1}. Выберите JPG, PNG, WebP или AVIF до 15 МБ.`;
+      blocks[invalid].querySelector('[type=file]').focus();
+      return;
+    }
+    submit.disabled = true;
+    status.textContent = 'Сохраняем карточку…';
+    try {
+      entries.blocks = await Promise.all(photos.map(async ({file, src, fields}) => ({
+        ...fields,
+        src: file ? await preparePhoto(file) : src,
+      })));
+      const ok = save(storyKey(slug), entries);
+      if (menu.value !== slug) return;
+      if (ok) populate();
+      status.textContent = ok
+        ? 'Карточка сохранена. Откройте её для проверки.'
+        : 'Не удалось сохранить карточку. Проверьте, разрешено ли хранение данных, или выберите фото меньшего размера.';
+    } catch {
+      if (menu.value === slug) status.textContent = 'Одно из фото не открылось. Попробуйте заменить файл.';
+    } finally {
+      submit.disabled = false;
+    }
   });
   populate();
 }
-const chapters=document.querySelectorAll('.story-copy');
-if (chapters.length) {
-  const data=stored(storyKey(document.body.className),[]);
-  chapters.forEach((chapter,i)=>{
-    const fields=data[i] || {};
-    for (const [name,selector] of Object.entries({heading:'h3',copy:'p',cta:'a span'})) {
-      if (typeof fields[name]==='string' && fields[name].trim()) chapter.querySelector(selector).textContent=fields[name];
+
+const description = document.querySelector('.stories');
+if (description) {
+  const data = savedCard(document.body.className);
+  if (data.brief) document.querySelector('.feature-lead').textContent = data.brief;
+  if (data.heading) description.querySelector('h2').textContent = data.heading;
+  description.querySelectorAll('.story').forEach((story, i) => {
+    const fields = data.blocks?.[i];
+    if (!fields) return;
+    for (const [name, selector] of Object.entries({heading:'h3', copy:'.story-copy p', cta:'.story-copy a span'})) {
+      if (fields[name]) story.querySelector(selector).textContent = fields[name];
     }
+    const trigger = story.querySelector('.story-open');
+    const image = trigger.querySelector('img');
+    if (/^data:image\/(webp|png);base64,/.test(fields.src)) image.src = fields.src;
+    if (fields.alt) {
+      image.alt = fields.alt;
+      trigger.setAttribute('aria-label', 'Увеличить фото. ' + fields.alt);
+    }
+    if (typeof fields.title === 'string') image.title = fields.title;
+    const caption = story.querySelector('figcaption');
+    caption.textContent = fields.caption || '';
+    caption.hidden = !fields.caption;
   });
 }
