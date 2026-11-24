@@ -103,6 +103,8 @@ if (gallery) setupGallery(gallery);
 
 function setupTabs(nav) {
   const tabs = [...nav.querySelectorAll('a')];
+  const description = document.querySelector('#description');
+  let descriptionOrigin;
   nav.setAttribute('role','tablist');
   for (const tab of tabs) {
     const panel = document.querySelector(tab.hash);
@@ -128,15 +130,26 @@ function setupTabs(nav) {
     const tab = tabs.find(tab => tab.hash === link.hash);
     if (!tab) return;
     event.preventDefault();
+    const fromTab = nav.contains(link);
+    const returning = link.hasAttribute('data-description-return');
+    if (!fromTab && !returning) {
+      descriptionOrigin = description.contains(link) ? {link, top: link.getBoundingClientRect().top} : undefined;
+    }
     if (location.hash!==link.hash) history.pushState(null,'',link.hash);
     activate(link.hash);
-    if (nav.contains(link)) {
+    if (returning && descriptionOrigin) {
+      const {link: origin, top} = descriptionOrigin;
+      origin.focus({preventScroll:true});
+      window.scrollBy(0, origin.getBoundingClientRect().top - top);
+    } else if (fromTab || returning) {
       tab.focus({preventScroll:true});
+      if (returning) nav.scrollIntoView({block:'start'});
     } else {
       const panel = document.querySelector(link.hash);
       panel.focus({preventScroll:true});
       panel.scrollIntoView({block:'start'});
     }
+    if (link.hash === '#description') descriptionOrigin = undefined;
   });
   nav.addEventListener('keydown',event=>{
     const index=tabs.indexOf(event.target);
