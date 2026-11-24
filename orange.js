@@ -178,7 +178,53 @@ if (request) {
   }
 }
 
+function phoneDigits(text) {
+  const digits = text.replace(/\D/g, '');
+  if (text.trimStart().startsWith('+7') || (digits.length === 11 && /^[78]/.test(digits))) {
+    return digits.slice(1);
+  }
+  return digits;
+}
+
+function maskPhone(field) {
+  const prefix = '+7 ';
+  function render(digits, cursor = digits.length) {
+    const local = digits.slice(0, 10);
+    const match = local.match(/^(\d{0,3})(\d{0,3})(\d{0,2})(\d{0,2})$/);
+    const [, area, first, second, last] = match;
+    field.value = prefix + (area ? '(' + area : '') + (first ? ') ' + first : '')
+      + (second ? '-' + second : '') + (last ? '-' + last : '');
+    if (cursor >= local.length) return;
+    let index = prefix.length;
+    for (let seen = 0; seen < cursor; index++) {
+      if (/\d/.test(field.value[index])) seen++;
+    }
+    field.setSelectionRange(index, index);
+  }
+  field.addEventListener('focus', () => { if (!field.value) render(''); });
+  field.addEventListener('blur', () => { if (field.value === prefix) field.value = ''; });
+  field.addEventListener('input', () => {
+    const cursor = phoneDigits(field.value.slice(0, field.selectionStart)).length;
+    render(phoneDigits(field.value), cursor);
+  });
+  field.addEventListener('paste', event => {
+    const pasted = phoneDigits(event.clipboardData.getData('text'));
+    if (!pasted) return;
+    event.preventDefault();
+    if (pasted.length >= 10) {
+      render(pasted);
+      return;
+    }
+    const start = phoneDigits(field.value.slice(0, field.selectionStart)).length;
+    const end = phoneDigits(field.value.slice(0, field.selectionEnd)).length;
+    const current = phoneDigits(field.value);
+    render(current.slice(0, start) + pasted + current.slice(end), start + pasted.length);
+  });
+}
+
 for (const form of document.querySelectorAll('.request-form')) {
+  const phone = form.querySelector('[data-phone-mask]');
+  if (phone) maskPhone(phone);
   for (const button of form.querySelectorAll('[data-step-shift]')) {
     button.addEventListener('click', () => {
       const input = form.querySelector('#shift-count');
