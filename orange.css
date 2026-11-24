@@ -328,18 +328,7 @@ body:has(.viewer[open]){overflow:hidden}
 .contract-card details[open] summary > .icon{rotate:180deg}
 .panel-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:clamp(18px,2.5vw,40px)}
 .panel-actions .action{flex:1 0 auto;max-width:100%;gap:12px;font-weight:720;text-align:center}
-.contract-art{position:relative;container-type:inline-size}
 .contract-art img,.request-portrait img{width:100%;height:auto;object-fit:contain}
-.contract-art > span{
- position:absolute;
- top:15%;
- left:32%;
- color:#282822;
- font-size:6.8cqi;
- font-weight:800;
- line-height:1.05;
- rotate:5deg;
-}
 .request-portrait{align-self:end}
 .request-inner--illustrated .panel-illustrated{grid-template-columns:minmax(0,.95fr) minmax(0,1fr)}
 .request-form .field-label{display:flex;align-items:center;gap:7px;font-weight:650}
