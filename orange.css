@@ -436,8 +436,9 @@ body:has(.viewer[open]){overflow:hidden}
 .closing-call{background:#fff6d6;color:#35270b}
 .closing-message{background:#ffffff39;color:#35270b}
 .closing .action:is(:hover,:focus-visible),.closing-message[aria-expanded=true]{background:#fffdf4;color:#35270b}
-.closing-actions .closing-call{background:#bde8a7;border-color:#395a2d;color:#203b20}
-.closing-actions .closing-call:is(:hover,:focus-visible){background:#d9f3c8;color:#203b20}
+.action.call-action{background:#28633f;border-color:#204f33;color:#fff}
+.action.call-action:is(:hover,:focus-visible){background:#31774c;color:#fff}
+.action.call-action:active{background:#204f33;color:#fff}
 .closing-contact{background:#fff9ea;border-radius:12px;padding:clamp(14px,2vw,24px);margin-top:16px;max-width:560px;gap:12px}
 .closing-contact :is(input,textarea){background:#fffdf8;border-color:#9d8451}
 .closing-contact small,.closing-contact output{color:#644b17}
