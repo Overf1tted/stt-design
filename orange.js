@@ -178,10 +178,19 @@ if (request) {
   }
 }
 
-for (const form of document.querySelectorAll('form:not(#edit-form)')) form.addEventListener('submit', event => {
-  event.preventDefault();
-  form.querySelector('output').textContent = 'Форма проверена. Это демонстрационный макет.';
-});
+for (const form of document.querySelectorAll('.request-form')) {
+  for (const button of form.querySelectorAll('[data-step-shift]')) {
+    button.addEventListener('click', () => {
+      const input = form.querySelector('#shift-count');
+      const baseline = Number.isSafeInteger(input.valueAsNumber) ? input.valueAsNumber : 1;
+      input.value = Math.max(1, baseline + Number(button.dataset.stepShift));
+    });
+  }
+  form.addEventListener('submit', event => {
+    event.preventDefault();
+    form.querySelector('output').textContent = 'Форма проверена. Это демонстрационный макет.';
+  });
+}
 
 function stored(key, fallback) {
   try { return JSON.parse(localStorage.getItem(key)) ?? fallback; }
@@ -190,6 +199,97 @@ function stored(key, fallback) {
 function save(key, value) {
   try { localStorage.setItem(key, JSON.stringify(value)); return true; }
   catch { return false; }
+}
+
+const specsPhotoKey = variant => 'stt-review-specs-photo-' + variant;
+const specsPhoto = document.querySelector('[data-specs-photo]');
+if (specsPhoto) {
+  const photo = stored(specsPhotoKey(document.body.className), null);
+  if (photo && /^data:image\/(webp|png);base64,/.test(photo.src)) {
+    specsPhoto.src = photo.src;
+    if (photo.alt) specsPhoto.alt = photo.alt;
+  }
+}
+
+async function preparePhoto(file) {
+  const src = URL.createObjectURL(file);
+  try {
+    const image = new Image();
+    image.src = src;
+    await image.decode();
+    const scale = Math.min(1, 1100 / Math.max(image.naturalWidth, image.naturalHeight));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+    canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+    canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
+    return canvas.toDataURL('image/webp', .84);
+  } finally {
+    URL.revokeObjectURL(src);
+  }
+}
+
+const photoForm = document.querySelector('#photo-form');
+if (photoForm) {
+  const card = document.querySelector('#edit-card');
+  const file = photoForm.elements.namedItem('photo');
+  const caption = photoForm.elements.namedItem('caption');
+  const status = photoForm.querySelector('output');
+  const preview = photoForm.querySelector('img');
+  const reset = photoForm.querySelector('[data-reset-photo]');
+  const submit = photoForm.querySelector('[type=submit]');
+
+  function populatePhoto() {
+    const photo = stored(specsPhotoKey(card.value), null);
+    file.value = '';
+    caption.value = photo?.alt || '';
+    if (photo) preview.src = photo.src;
+    else preview.removeAttribute('src');
+    preview.hidden = reset.hidden = !photo;
+    photoForm.querySelector('.photo-preview-link').href = card.value + '.html#specifications';
+    status.textContent = '';
+  }
+
+  card.addEventListener('change', populatePhoto);
+  photoForm.addEventListener('submit', async event => {
+    event.preventDefault();
+    const key = specsPhotoKey(card.value);
+    const selected = file.files[0];
+    const existing = stored(key, null);
+    if (!selected && !existing) {
+      status.textContent = 'Выберите файл изображения.';
+      return;
+    }
+    if (selected && (!/^(image\/(jpeg|png|webp|avif))$/.test(selected.type) || selected.size > 15 * 1024 * 1024)) {
+      status.textContent = 'Выберите JPG, PNG, WebP или AVIF до 15 МБ.';
+      return;
+    }
+    const alt = caption.value.trim();
+    submit.disabled = card.disabled = reset.disabled = true;
+    try {
+      const src = selected ? await preparePhoto(selected) : existing.src;
+      if (!save(key, {src, alt})) {
+        status.textContent = 'Не удалось сохранить фото в браузере.';
+        return;
+      }
+      populatePhoto();
+      status.textContent = 'Фото сохранено. Его можно проверить в карточке.';
+    } catch {
+      status.textContent = 'Файл не удалось открыть. Попробуйте другое изображение.';
+    } finally {
+      submit.disabled = card.disabled = reset.disabled = false;
+    }
+  });
+
+  reset.addEventListener('click', () => {
+    try {
+      localStorage.removeItem(specsPhotoKey(card.value));
+      populatePhoto();
+      status.textContent = 'Восстановлено исходное фото.';
+    } catch {
+      status.textContent = 'Не удалось убрать фото из браузера.';
+    }
+  });
+  populatePhoto();
 }
 const buy = document.querySelector('[data-buy]');
 if (buy) {
